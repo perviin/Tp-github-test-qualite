@@ -6,65 +6,48 @@ const {
   payBasket
 } = require('../src/ecommerce');
 
-function testAdd() {
+test('testAdd: ajout d’un produit met à jour le prix total', () => {
   const basket = new Basket();
   const item = { name: 'Carte mère', price: 100 };
   addToBasket(basket, item);
-  return basket.totalPrice === 100;
-}
+  expect(basket.totalPrice).toBe(100);
+});
 
-function testRemove() {
+test('testRemove: suppression d’un produit remet le total à zéro', () => {
   const basket = new Basket();
   const item = { name: 'Carte mère', price: 100 };
   addToBasket(basket, item);
   removeFromBasket(basket, item);
-  return basket.totalPrice === 0 && basket.items.length === 0;
-}
+  expect(basket.totalPrice).toBe(0);
+  expect(basket.items.length).toBe(0);
+});
 
-function testAddRemove() {
+test('testAddRemove: ajout puis suppression fonctionne correctement', () => {
   const basket = new Basket();
   const item = { name: 'Carte mère', price: 100 };
   addToBasket(basket, item);
-  const added = basket.totalPrice === 100 && basket.items.length === 1;
+  expect(basket.totalPrice).toBe(100);
+  expect(basket.items.length).toBe(1);
   removeFromBasket(basket, item);
-  const removed = basket.totalPrice === 0 && basket.items.length === 0;
-  return added && removed;
-}
+  expect(basket.totalPrice).toBe(0);
+  expect(basket.items.length).toBe(0);
+});
 
-function testTransactionAllowed() {
+test('testTransactionAllowed: autorisation selon le solde', () => {
   const user = { name: 'Perceval', balance: 500 };
-  const allowed = transactionAllowed(user, 400) === true;
-  const refused = transactionAllowed(user, 600) === false;
-  return allowed && refused;
-}
+  expect(transactionAllowed(user, 400)).toBe(true);
+  expect(transactionAllowed(user, 600)).toBe(false);
+});
 
-function testPayBasket() {
+test('testPayBasket: paiement réussi puis refusé', () => {
   const user = { name: 'Perceval', balance: 500 };
   const basket = new Basket();
   const item = { name: 'Carte graphique', price: 300 };
   addToBasket(basket, item);
 
   payBasket(user, basket);
-  const firstOK = user.balance === 200;
+  expect(user.balance).toBe(200);
 
   payBasket(user, basket);
-  const secondFail = user.balance === 200;
-
-  return firstOK && secondFail;
-}
-
-function testAppEcommerce() {
-  let success = testAdd();
-  success = success && testRemove();
-  success = success && testAddRemove();
-  success = success && testTransactionAllowed();
-  success = success && testPayBasket();
-
-  if (success) {
-    console.log("Tests passés");
-  } else {
-    console.log("Tests échoués");
-  }
-}
-
-testAppEcommerce();
+  expect(user.balance).toBe(200);
+});
